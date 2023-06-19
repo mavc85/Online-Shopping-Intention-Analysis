@@ -7,6 +7,8 @@ import seaborn as sns  # ^
 import plotly as py  # ^^
 import plotly.graph_objs as go  # ^^^
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import LabelEncoder
+
 
 
 
@@ -35,7 +37,7 @@ for i in range(1, 11):
     wcss.append(km.inertia_)
 
 #plotting wcss vs number of clusters
-plt.rcParams['figure.figsize'] = (13, 7)
+plt.rcParams['figure.figsize'] = (9.28, 5)
 plt.plot(range(1, 11), wcss)
 plt.grid()
 plt.tight_layout()
@@ -51,12 +53,33 @@ km = KMeans(n_clusters = n, init = 'k-means++', max_iter = 300, n_init = 10, ran
 y_means = km.fit_predict(x)
 
 plt.scatter(x[y_means == 0, 0], x[y_means == 0, 1], s = 50, c = 'yellow', label = 'Uninterested Customers')
-plt.scatter(x[y_means == 1, 0], x[y_means == 1, 1], s = 50, c = 'pink', label = 'Target Customers')
+plt.scatter(x[y_means == 1, 0], x[y_means == 1, 1], s = 50, c = 'pink', label = 'Interested Customers')
 plt.scatter(km.cluster_centers_[:,0], km.cluster_centers_[:, 1], s = 50, c = 'blue' , label = 'centeroid')
 
 plt.title('ProductRelated Duration vs Bounce Rate', fontsize = 20)
 plt.grid()
 plt.xlabel('ProductRelated Duration')
-plt.ylabel('Bounce Rates')
+plt.ylabel('Bounce Rates') 
 plt.legend()
+plt.show()
+
+le = LabelEncoder()
+labels_true = le.fit_transform(data['Revenue'])
+
+# get predicted clustering result label
+labels_pred = y_means
+
+# print adjusted rand index, which measures the similarity of the two assignments
+from sklearn import metrics
+score = metrics.adjusted_rand_score(labels_true, labels_pred)
+print("Adjusted rand index: ")
+print(score)
+
+# print confusion matrix
+#cm = metrics.plot_confusion_matrix(None, labels_true, labels_pred)
+#print(cm)
+
+import scikitplot as skplt
+plt_1 = skplt.metrics.plot_confusion_matrix(labels_true, labels_pred, normalize=False)
+plt_2 = skplt.metrics.plot_confusion_matrix(labels_true, labels_pred, normalize=True)
 plt.show()
